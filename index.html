@@ -1,65 +1,65 @@
 <!DOCTYPE html>
-<html 语言=“zh-CN”>
-<头部>
-<元数据 字符集=“UTF-8”>
-<标题>SL278H蓝牙控制器</标题>
-</头部>
-<身体>
-<按钮 id=“connectBtn”>连接 SL278H</按钮>
-<p id=“状态”>未连接</p>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>SL278H蓝牙控制器</title>
+</head>
+<body>
+<button id="connectBtn">连接 SL278H</button>
+<p id="status">未连接</p>
 
-<脚本>
+<script>
 const DEVICE_NAME = "SL278H";
-const CHAR_UUID = “0000ffe1-0000-1000-8000-00805f9b34fb”；
-const SERVICE_UUID = “0000ffe0-0000-1000-8000-00805f9b34fb”；
-让charWrite等于“无”；
+const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+let charWrite = null;
 
 // 指令构建函数
 function buildSpeed(v){
-return new Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&0xFF,0xAA]);
+    return new Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&0xFF,0xAA]);
 }
 function buildStop(){
-return 新 Uint8Array([0x55,0x04,0x00,0x00,0x00,0x00,0xAA]);
+    return new Uint8Array([0x55,0x04,0x00,0x00,0x00,0x00,0xAA]);
 }
 
 //蓝牙连接
-document.getElementById(“connectBtn”).onclick = async ()=>
+document.getElementById("connectBtn").onclick = async ()=>
 {
-异步
+try{
 const dev = await navigator.bluetooth.requestDevice({
-过滤器
-可选服务：[服务UUID]
+filters: [{name: DEVICE_NAME}],
+optionalServices: [SERVICE_UUID]
 });
 const server = await dev.gatt.connect();
 const service = await server.getPrimaryService(SERVICE_UUID);
-charWrite
-文档
+charWrite = await service.getCharacteristic(CHAR_UUID);
+document.getElementById("status").innerText = "✅蓝牙已连接";
 }catch(e){
 document.getElementById("status").innerText = "❌连接失败:"+e;
-控制台
+console.error(e);
 }
 }
 
 //接收URL参数，Operit调用
-“状态”
+async function setSpeed(speedVal){
 if(charWrite){
-如果(speedVal<=0){
-await charWrite.writeValue(buildStop());
-}else{
-等待charWrite.writeValue(buildSpeed(speedVal))；
+    if(speedVal <=0){
+        await charWrite.writeValue(buildStop());
+    }else{
+        await charWrite.writeValue(buildSpeed(speedVal));
     }
 }
 }
 
 // 读取url参数，页面打开自动执行指令
-函数
-const params = new URLSearchParams(window.location.search);
-const sp = params.get("speed");
-if(sp){
-setSpeed(sp);
+(function readCmd(){
+    const params = new URLSearchParams(window.location.search);
+    const sp = params.get("speed");
+    if(sp){
+        setSpeed(sp);
     }
 })();
 
-</脚本>
-</身体>
-</html>html>
+</script>
+</body>
+</html>
