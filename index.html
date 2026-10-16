@@ -14,7 +14,6 @@ const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
 const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
 let charWrite = null;
 
-// 指令构建函数
 function buildSpeed(v){
     return new Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&0xFF,0xAA]);
 }
@@ -22,7 +21,6 @@ function buildStop(){
     return new Uint8Array([0x55,0x04,0x00,0x00,0x00,0x00,0xAA]);
 }
 
-//蓝牙连接
 document.getElementById("connectBtn").onclick = async ()=>
 {
 try{
@@ -40,7 +38,6 @@ console.error(e);
 }
 }
 
-//接收URL参数，Operit调用
 async function setSpeed(speedVal){
 if(charWrite){
     if(speedVal <=0){
@@ -51,7 +48,6 @@ if(charWrite){
 }
 }
 
-// 读取url参数，页面打开自动执行指令
 (function readCmd(){
     const params = new URLSearchParams(window.location.search);
     const sp = params.get("speed");
@@ -59,7 +55,6 @@ if(charWrite){
         setSpeed(sp);
     }
 })();
-
 </script>
 </body>
 </html>
