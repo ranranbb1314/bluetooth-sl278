@@ -1,39 +1,39 @@
 <html><body><meta charset="utf-8"><p></p><div align="left">
- <span style="font-size:16">&lt;!DOCTYPE&nbsp;html&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;html&nbsp;lang="zh-CN"&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;head&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;&lt;meta&nbsp;charset="UTF-8"&gt;</span>
-</div><div align="left">
+ <span style="字体大小：16"&lt;!DOCTYPE&nbsp;html&gt;</span>
+</div><div align="左">
+="左">span style="字体大小：16">&lt;html&nbsp;语言="zh-CN"&gt;</span>
+</div><div align="左">
+ <span style="字体大小：16"&lt;头部分&gt;</span>
+</div><div align="左">
+ <span style="字体大小：16">&nbsp;&lt;meta&nbsp;charset="UTF-8"&gt;</span>
+</div><div align="左">
  <span style="font-size:16">&nbsp;&lt;title&gt;SL278H蓝牙控制器&lt;/title&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;/head&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;body&gt;</span>
-</div><div align="left">
+</div><div align="左">
+ <span style="字体大小：16"&lt;/head&gt></span>
+</div><div align="左">
+ <span style="字体大小：16">&lt;body&gt;</span>
+</div><div align="左">
  <span style="font-size:16">&lt;button&nbsp;id="connectBtn"&gt;连接&nbsp;SL278H&lt;/button&gt;</span>
-</div><div align="left">
+</div><div align="左">
  <span style="font-size:16">&lt;p&nbsp;id="status"&gt;未连接&lt;/p&gt;</span>
-</div><br><div align="left">
- <span style="font-size:16">&lt;script&gt;</span>
-</div><div align="left">
+</div><br><div align="左">
+ <span style="字体大小：16"&lt;脚本&gt></span>
+</div><div align="左">
  <span style="font-size:16">const&nbsp;DEVICE_NAME&nbsp;=&nbsp;"SL278H";</span>
-</div><div align="left">
+</div><div align="左">
  <span style="font-size:16">const&nbsp;CHAR_UUID&nbsp;=&nbsp;"0000ffe1-0000-1000-8000-00805f9b34fb";</span>
-</div><div align="left">
+</div><div align="左">
  <span style="font-size:16">const&nbsp;SERVICE_UUID&nbsp;=&nbsp;"0000ffe0-0000-1000-8000-00805f9b34fb";</span>
-</div><br><div align="left">
- <span style="font-size:16">let&nbsp;charWrite&nbsp;=&nbsp;null;</span>
-</div><br><div align="left">
+</div><br><div align="左">
+ <span style="font-size:16">将&nbsp;charWrite&nbsp;设置为&nbsp;null；</span>
+</div><br><div align="左">
  <span style="font-size:16">//&nbsp;指令构建函数</span>
-</div><div align="left">
+</div><div align="左">
  <span style="font-size:16">function&nbsp;buildSpeed(v){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;return&nbsp;new&nbsp;Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&amp;0xFF,0xAA]);</span>
-</div><div align="left">
- <span style="font-size:16">}</span>
+</div><div align="左">
+ <span style="font-size:16">&nbsp;返回&nbsp;新的&nbsp;Uint8Array对象，其内容为[0x55,0x04,0x00,0x00,0x01,parseInt(v)&amp;0xFF,0xAA]；</span>
+</div><div align="左">
+ <span style="字体大小：16">}</span>
 </div><div align="left">
  <span style="font-size:16">function&nbsp;buildStop(){</span>
 </div><div align="left">
