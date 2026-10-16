@@ -21,6 +21,8 @@ const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
 const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
 let charWrite = null;
+let currentSpeed = 0;
+let timer = null;
 
 function buildSpeed(v){
     var n = parseInt(v);
@@ -50,21 +52,35 @@ document.getElementById("connectBtn").addEventListener("click", async function()
     }
 });
 
-async function setSpeed(speedVal){
-    if(!charWrite) {
-        document.getElementById("status").innerText = "⚠️请先连接蓝牙";
-        return;
-    }
+async function sendOnce(speedVal){
+    if(!charWrite) return;
     var n = parseInt(speedVal);
     if(isNaN(n) || n <= 0){
         await charWrite.writeValue(buildStop());
-        document.getElementById("status").innerText = "已停止";
     }else{
         await charWrite.writeValue(buildSpeed(n));
-        document.getElementById("status").innerText = "运行，档位:"+n;
     }
 }
 
+function setSpeed(speedVal){
+    currentSpeed = speedVal;
+    //清除旧定时器
+    if(timer) clearInterval(timer);
+
+    if(currentSpeed <= 0){
+        sendOnce(0);
+        document.getElementById("status").innerText = "已停止";
+    }else{
+        //立刻发一次，然后每800ms重复发包保活
+        sendOnce(currentSpeed);
+        document.getElementById("status").innerText = "运行，档位:"+currentSpeed;
+        timer = setInterval(()=>{
+            sendOnce(currentSpeed);
+        },800);
+    }
+}
+
+//读取URL参数，页面打开自动执行
 (function(){
     var params = new URLSearchParams(window.location.search);
     var sp = params.get("speed");
