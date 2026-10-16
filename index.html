@@ -1,123 +1,65 @@
-<html><body><meta charset="utf-8"><p></p><div align="left">
- <span style="font-size:16">&lt;!DOCTYPE&nbsp;html&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;html&nbsp;lang="zh-CN"&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;head&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;&lt;meta&nbsp;charset="UTF-8"&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;&lt;title&gt;SL278H蓝牙控制器&lt;/title&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;/head&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;body&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;button&nbsp;id="connectBtn"&gt;连接&nbsp;SL278H&lt;/button&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;p&nbsp;id="status"&gt;未连接&lt;/p&gt;</span>
-</div><br><div align="left">
- <span style="font-size:16">&lt;script&gt;</span>
-</div><div align="left">
- <span style="font-size:16">const&nbsp;DEVICE_NAME&nbsp;=&nbsp;"SL278H";</span>
-</div><div align="left">
- <span style="font-size:16">const&nbsp;CHAR_UUID&nbsp;=&nbsp;"0000ffe1-0000-1000-8000-00805f9b34fb";</span>
-</div><div align="left">
- <span style="font-size:16">const&nbsp;SERVICE_UUID&nbsp;=&nbsp;"0000ffe0-0000-1000-8000-00805f9b34fb";</span>
-</div><br><div align="left">
- <span style="font-size:16">let&nbsp;charWrite&nbsp;=&nbsp;null;</span>
-</div><br><div align="left">
- <span style="font-size:16">//&nbsp;指令构建函数</span>
-</div><div align="left">
- <span style="font-size:16">function&nbsp;buildSpeed(v){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;return&nbsp;new&nbsp;Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&amp;0xFF,0xAA]);</span>
-</div><div align="left">
- <span style="font-size:16">}</span>
-</div><div align="left">
- <span style="font-size:16">function&nbsp;buildStop(){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;return&nbsp;new&nbsp;Uint8Array([0x55,0x04,0x00,0x00,0xAA]);</span>
-</div><div align="left">
- <span style="font-size:16">}</span>
-</div><br><div align="left">
- <span style="font-size:16">//蓝牙连接</span>
-</div><div align="left">
- <span style="font-size:16">document.getElementById("connectBtn").onclick&nbsp;=&nbsp;async&nbsp;()=&gt;{</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;try{</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;const&nbsp;dev&nbsp;=&nbsp;await&nbsp;navigator.bluetooth.requestDevice({</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;filters:&nbsp;[{name:&nbsp;DEVICE_NAME}],</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;optionalServices:&nbsp;[SERVICE_UUID]</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;});</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;const&nbsp;server&nbsp;=&nbsp;await&nbsp;dev.gatt.connect();</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;const&nbsp;service&nbsp;=&nbsp;await&nbsp;server.getPrimaryService(SERVICE_UUID);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;charWrite&nbsp;=&nbsp;await&nbsp;service.getCharacteristic(CHAR_UUID);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;document.getElementById("status").innerText&nbsp;=&nbsp;"✅蓝牙已连接";</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}catch(e){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;document.getElementById("status").innerText&nbsp;=&nbsp;"❌连接失败:"+e;</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;console.error(e);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}</span>
-</div><div align="left">
- <span style="font-size:16">}</span>
-</div><br><div align="left">
- <span style="font-size:16">//&nbsp;接收URL参数，Operit调用</span>
-</div><div align="left">
- <span style="font-size:16">async&nbsp;function&nbsp;setSpeed(speedVal){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;if(!charWrite){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;return&nbsp;{code:-1,msg:"蓝牙未连接，请先在页面点击连接按钮"};</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;let&nbsp;buf;</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;if(speedVal&nbsp;&lt;=0){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;buf&nbsp;=&nbsp;buildStop();</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}else{</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;buf&nbsp;=&nbsp;buildSpeed(speedVal);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;await&nbsp;charWrite.writeValue(buf);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;return&nbsp;{code:0,msg:"指令发送成功，speed="+speedVal};</span>
-</div><div align="left">
- <span style="font-size:16">}</span>
-</div><br><div align="left">
- <span style="font-size:16">//读取url参数</span>
-</div><div align="left">
- <span style="font-size:16">new&nbsp;URLSearchParams(window.location.search).forEach(async&nbsp;(val,key)=&gt;{</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;if(key&nbsp;===&nbsp;"speed"){</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;const&nbsp;res&nbsp;=&nbsp;await&nbsp;setSpeed(val);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;console.log(res);</span>
-</div><div align="left">
- <span style="font-size:16">&nbsp;}</span>
-</div><div align="left">
- <span style="font-size:16">})</span>
-</div><div align="left">
- <span style="font-size:16">&lt;/script&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;/body&gt;</span>
-</div><div align="left">
- <span style="font-size:16">&lt;/html&gt;</span>
-</div><br><p></p></body></html>
+<!DOCTYPE html>
+<html 语言=“zh-CN”>
+<头部>
+<元数据 字符集=“UTF-8”>
+<标题>SL278H蓝牙控制器</标题>
+</头部>
+<身体>
+<按钮 id=“connectBtn”>连接 SL278H</按钮>
+<p id=“状态”>未连接</p>
+
+<脚本>
+const DEVICE_NAME = "SL278H";
+const CHAR_UUID = “0000ffe1-0000-1000-8000-00805f9b34fb”；
+const SERVICE_UUID = “0000ffe0-0000-1000-8000-00805f9b34fb”；
+让charWrite等于“无”；
+
+// 指令构建函数
+function buildSpeed(v){
+return new Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&0xFF,0xAA]);
+}
+function buildStop(){
+return 新 Uint8Array([0x55,0x04,0x00,0x00,0x00,0x00,0xAA]);
+}
+
+//蓝牙连接
+document.getElementById(“connectBtn”).onclick = async ()=>
+{
+异步
+const dev = await navigator.bluetooth.requestDevice({
+过滤器
+可选服务：[服务UUID]
+});
+const server = await dev.gatt.connect();
+const service = await server.getPrimaryService(SERVICE_UUID);
+charWrite
+文档
+}catch(e){
+document.getElementById("status").innerText = "❌连接失败:"+e;
+控制台
+}
+}
+
+//接收URL参数，Operit调用
+“状态”
+if(charWrite){
+如果(speedVal<=0){
+await charWrite.writeValue(buildStop());
+}else{
+等待charWrite.writeValue(buildSpeed(speedVal))；
+    }
+}
+}
+
+// 读取url参数，页面打开自动执行指令
+函数
+const params = new URLSearchParams(window.location.search);
+const sp = params.get("speed");
+if(sp){
+setSpeed(sp);
+    }
+})();
+
+</脚本>
+</身体>
+</html>html>
