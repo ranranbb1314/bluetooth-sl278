@@ -1,60 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>SL278H蓝牙控制器</title>
 </head>
 <body>
+
 <button id="connectBtn">连接 SL278H</button>
 <p id="status">未连接</p>
 
+<br/>
+<button onclick="setSpeed(3)">档位3</button>
+<button onclick="setSpeed(5)">档位5</button>
+<button onclick="setSpeed(8)">档位8</button>
+<button onclick="setSpeed(0)">停止</button>
+
 <script>
 const DEVICE_NAME = "SL278H";
-const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
 const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
 let charWrite = null;
 
 function buildSpeed(v){
-    return new Uint8Array([0x55,0x04,0x00,0x00,0x01,parseInt(v)&0xFF,0xAA]);
-}
-function buildStop(){
-    return new Uint8Array([0x55,0x04,0x00,0x00,0x00,0x00,0xAA]);
+    var n = parseInt(v);
+    if(isNaN(n)) n = 0;
+    return new Uint8Array([0x55, 0x04, 0x00, 0x00, 0x01, n & 0xFF, 0xAA]);
 }
 
-document.getElementById("connectBtn").onclick = async ()=>
-{
-try{
-const dev = await navigator.bluetooth.requestDevice({
-filters: [{name: DEVICE_NAME}],
-optionalServices: [SERVICE_UUID]
+function buildStop(){
+    return new Uint8Array([0x55, 0x04, 0x00, 0x00, 0x00, 0x00, 0xAA]);
+}
+
+document.getElementById("connectBtn").addEventListener("click", async function(){
+    try{
+        var dev = await navigator.bluetooth.requestDevice({
+            filters: [{name: DEVICE_NAME}],
+            optionalServices: [SERVICE_UUID]
+        });
+
+        var server = await dev.gatt.connect();
+        var service = await server.getPrimaryService(SERVICE_UUID);
+        charWrite = await service.getCharacteristic(CHAR_UUID);
+
+        document.getElementById("status").innerText = "✅蓝牙已连接";
+    }catch(err){
+        document.getElementById("status").innerText = "❌连接失败";
+        console.error(err);
+    }
 });
-const server = await dev.gatt.connect();
-const service = await server.getPrimaryService(SERVICE_UUID);
-charWrite = await service.getCharacteristic(CHAR_UUID);
-document.getElementById("status").innerText = "✅蓝牙已连接";
-}catch(e){
-document.getElementById("status").innerText = "❌连接失败:"+e;
-console.error(e);
-}
-}
 
 async function setSpeed(speedVal){
-if(charWrite){
-    if(speedVal <=0){
+    if(!charWrite) {
+        document.getElementById("status").innerText = "⚠️请先连接蓝牙";
+        return;
+    }
+    var n = parseInt(speedVal);
+    if(isNaN(n) || n <= 0){
         await charWrite.writeValue(buildStop());
+        document.getElementById("status").innerText = "已停止";
     }else{
-        await charWrite.writeValue(buildSpeed(speedVal));
+        await charWrite.writeValue(buildSpeed(n));
+        document.getElementById("status").innerText = "运行，档位:"+n;
     }
 }
-}
 
-(function readCmd(){
-    const params = new URLSearchParams(window.location.search);
-    const sp = params.get("speed");
-    if(sp){
-        setSpeed(sp);
+//读取URL参数（页面刷新才生效）
+(function(){
+    var params = new URLSearchParams(window.location.search);
+    var sp = params.get("speed");
+    if(sp !== null && sp !== ""){
+        setTimeout(function(){
+            setSpeed(sp);
+        }, 1500);
     }
 })();
 </script>
+
 </body>
 </html>
